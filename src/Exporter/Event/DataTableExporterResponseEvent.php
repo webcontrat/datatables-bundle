@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Exporter\Event;
 
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -22,18 +22,9 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class DataTableExporterResponseEvent extends Event
 {
-    /** @var BinaryFileResponse */
-    private $response;
+    public function __construct(private Response $response) {}
 
-    /**
-     * DataTableExporterResponseEvent constructor.
-     */
-    public function __construct(BinaryFileResponse $response)
-    {
-        $this->response = $response;
-    }
-
-    public function getResponse(): BinaryFileResponse
+    public function getResponse(): Response
     {
         return $this->response;
     }

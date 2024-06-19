@@ -65,14 +65,30 @@ class DataTableExporterManager
     public function getResponse(): Response
     {
         $exporter = $this->exporterCollection->getByName($this->exporterName);
-        $file = $exporter->export($this->getColumnNames(), $this->getAllData());
+        $exportResponse = $exporter->export($this->getColumnNames(), $this->getAllData());
+        if (!$exportResponse instanceof \SplFileInfo) {
+            $this->dataTable->getEventDispatcher()->dispatch(
+                new DataTableExporterResponseEvent($exportResponse),
+                DataTableExporterEvents::PRE_RESPONSE
+            );
+
+            return $exportResponse;
+        }
+
+        $file = $exportResponse;
 
         $response = new BinaryFileResponse($file);
         $response->deleteFileAfterSend(true);
         $response->headers->set('Content-Type', $exporter->getMimeType());
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $response->getFile()->getFilename());
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $response->getFile()->getFilename()
+        );
 
-        $this->dataTable->getEventDispatcher()->dispatch(new DataTableExporterResponseEvent($response), DataTableExporterEvents::PRE_RESPONSE);
+        $this->dataTable->getEventDispatcher()->dispatch(
+            new DataTableExporterResponseEvent($response),
+            DataTableExporterEvents::PRE_RESPONSE
+        );
 
         return $response;
     }
@@ -95,7 +111,6 @@ class DataTableExporterManager
 
     /**
      * Browse the entire DataTable (all pages).
-     *
      * A Generator is created in order to remove the 'DT_RowId' key
      * which is created by some adapters (e.g. ORMAdapter).
      */

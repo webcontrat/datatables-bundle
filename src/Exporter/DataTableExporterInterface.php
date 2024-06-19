@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Omines\DataTablesBundle\Exporter;
 
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 /**
  * Defines a DataTable exporter.
  *
@@ -24,7 +26,7 @@ interface DataTableExporterInterface
      *
      * @param mixed[] $columnNames
      */
-    public function export(array $columnNames, \Iterator $data): \SplFileInfo;
+    public function export(array $columnNames, \Iterator $data): \SplFileInfo|StreamedResponse;
 
     /**
      * The MIME type of the exported file.
